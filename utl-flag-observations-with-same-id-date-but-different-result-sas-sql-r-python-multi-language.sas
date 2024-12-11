@@ -7,6 +7,7 @@ Flag observations with same id/date but different result sas sql r python multi 
 
      SOLUTIONS
 
+         0 Noteworthy contributions by Mark Keintx (this problem and sentinels)
          1 sas sql
          2 sas dow loop
          3 r sql
@@ -21,6 +22,94 @@ https://github.com/rogerjdeangelis/utl-flag-observations-with-same-id-date-but-d
 sas community
 https://tinyurl.com/4dyuuyhv
 https://stackoverflow.com/questions/79248160/flag-observations-with-same-id-date-but-different-result
+
+
+/*___               _                          _   _                             _        _ _           _   _
+ / _ \  _ __   ___ | |_ _____      _____  _ __| |_| |__  _   _    ___ ___  _ __ | |_ _ __(_) |__  _   _| |_(_) ___  _ __  ___
+| | | || `_ \ / _ \| __/ _ \ \ /\ / / _ \| `__| __| `_ \| | | |  / __/ _ \| `_ \| __| `__| | `_ \| | | | __| |/ _ \| `_ \/ __|
+| |_| || | | | (_) | ||  __/\ V  V / (_) | |  | |_| | | | |_| | | (_| (_) | | | | |_| |  | | |_) | |_| | |_| | (_) | | | \__ \
+ \___/ |_| |_|\___/ \__\___| \_/\_/ \___/|_|   \__|_| |_|\__, |  \___\___/|_| |_|\__|_|  |_|_.__/ \__,_|\__|_|\___/|_| |_|___/
+     _                 _                 _               |___/
+ ___(_)_ __ ___  _ __ | | ___ _ __    __| | _____      __ | | ___   ___  _ __
+/ __| | `_ ` _ \| `_ \| |/ _ \ `__|  / _` |/ _ \ \ /\ / / | |/ _ \ / _ \| `_ \
+\__ \ | | | | | | |_) | |  __/ |    | (_| | (_) \ V  V /  | | (_) | (_) | |_) |
+|___/_|_| |_| |_| .__/|_|\___|_|     \__,_|\___/ \_/\_/   |_|\___/ \___/| .__/
+                |_|                                                     |_|
+*/
+
+/* Thanks Mark                                                                                      ----*/
+/*---- simpler solution for this problem                                                            ----*/
+/*---- posing a problem to the SAS-L brain trust can lead to new potentially powerfull algorithms   ----*/
+
+Contributions by
+Keintz, Mark
+mkeintz@outlook.com
+
+/*--- MARKS SOLUTION TO THIS PROBLEM ----*/
+
+data want;
+
+  set sd1.have (in=firstpass) sd1.have (in=secondpass);
+  by id dt;
+
+  retain flag;
+  if firstpass then do;
+    if result^=lag(result) then flag=1;
+    if first.dt=1 then flag=0;
+  end;
+
+  if secondpass;
+
+run;quit;
+
+HOW IT WORKS
+============
+
+  sd1.have (in=firstpass) sd1.have (in=secondpass);
+
+  Interleaves obsetvations when id and dt change
+
+                                  ID        DT      RESULT
+
+  _N_=1 FIRSTPASS=1 SECONDPASS=0   1     2024-04-27   1
+  _N_=2 FIRSTPASS=1 SECONDPASS=0   1     2024-04-27   1
+
+  _N_=3 FIRSTPASS=0 SECONDPASS=1   1     2024-04-30   2
+  _N_=4 FIRSTPASS=0 SECONDPASS=1   1     2024-04-30   2
+
+  _N_=5 FIRSTPASS=1 SECONDPASS=0   2     2024-05-05   1
+  _N_=6 FIRSTPASS=1 SECONDPASS=0   2     2024-05-05   2
+
+  if firstpass
+    whats interresting here is we have two occurrances of
+    firstpass and on the second one we can check if
+    the result changed and set flag=1. If we are on
+    the first firstpass we do no want to setflag 1 so
+    we set it to 0.
+
+  if second pass
+    we now have the correct value for flag
+    we also have the matching two values comming
+    in from the second dataset.
+    This ensures the retained flag will be outputed
+
+/*              _   _            _
+ ___  ___ _ __ | |_(_)_ __   ___| |___
+/ __|/ _ \ `_ \| __| | `_ \ / _ \ / __|
+\__ \  __/ | | | |_| | | | |  __/ \__ \
+|___/\___|_| |_|\__|_|_| |_|\___|_|___/
+
+*/
+
+MARKS SENTINELS
+===============
+
+Mark Keintz profile
+https://tinyurl.com/ysr5ukux
+https://github.com/rogerjdeangelis/utl-using-sentinels-to-restrict-update-to-common-columns-in-master-table-and-transaction-table
+
+
+
 
 /*               _     _
  _ __  _ __ ___ | |__ | | ___ _ __ ___
@@ -143,6 +232,7 @@ https://stackoverflow.com/questions/79248160/flag-observations-with-same-id-date
 |_|_| |_| .__/ \__,_|\__|
         |_|
 */
+
 options validvarname=upcase;
 libname sd1 "d:/sd1";
 data sd1.have;
@@ -181,6 +271,7 @@ run;quit;
 /*   4     2024-07-17       2                                                                                             */
 /*                                                                                                                        */
 /**************************************************************************************************************************/
+
 
 /*                             _
 / |  ___  __ _ ___   ___  __ _| |
@@ -458,3 +549,4 @@ run;quit;
  \___|_| |_|\__,_|
 
 */
+
